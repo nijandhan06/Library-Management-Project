@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Books</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg"
+      style="background-color: blanchedalmond"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/" style="color: black">Library App</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <form class="d-flex" action="/book_request" method="post">
+          <input
+            class="form-control me-2"
+            type="search"
+            name="query"
+            placeholder="Search by Status, Title, Author"
+            style="width: 400px"
+            aria-label="Search"
+          />
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                href="/librarian_home"
+                style="color: black"
+                >DashBoard</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                href="/librarian_stats"
+                style="color: black"
+                >Stats</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/logout" style="color: black"
+                >Logout</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}{% for category, message in messages %} {% if category ==
+      'error' %}
+      <div align="center">
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+      {% else %}
+      <div align="center">
+        <div
+          class="alert alert-success alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+      {% endif %} {% endfor %} {% endif %} {% endwith %}
+      <div style="display: flex; justify-content: space-between; gap: 30px">
+        <div class="table-box">
+          <h1 class="text-center">My Books</h1>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Book ID</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Return Date</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for request in requests %} {% set book = request.book %} {% if
+              request.status=='pending' %}
+              <tr>
+                <th scope="row">{{ book.id }}</th>
+                <td onclick="openModal('{{ request.id }}')" style="color: blue">
+                  {{ book.title }}
+                </td>
+                <div
+                  class="modal fade"
+                  id="viewModal{{ request.id }}"
+                  tabindex="-1"
+                  role="dialog"
+                  aria-labelledby="viewModalLabel"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="viewModalLabel">
+                          Request Details
+                        </h5>
+                        <button
+                          type="button"
+                          class="btn-close"
+                          data-dismiss="modal"
+                          aria-label="Close"
+                          onclick="closeModal('{{request.id}}')"
+                        ></button>
+                      </div>
+                      <div class="modal-body">
+                        <p><b>Username:</b> {{request.user.username}}</p>
+                        <p>
+                          <b>Date return:</b>
+                          {{request.date_return.strftime("%d-%m-%Y %H:%M")}}
+                        </p>
+                        <p><b>Book Name:</b> {{book.title}}</p>
+                        <p><b>Section:</b> {{book.section.name}}</p>
+                      </div>
+                      <div
+                        class="modal-footer"
+                        style="display: flex; justify-content: space-between"
+                      >
+                        <button
+                          class="btn btn-success"
+                          onclick="window.location.href='/approve_request/{{ request.id }}'"
+                        >
+                          grant
+                        </button>
+                        <button
+                          class="btn btn-danger"
+                          onclick="window.location.href='/reject_request/{{ request.id }}'"
+                        >
+                          reject
+                        </button>
+                        <button
+                          class="btn btn-warning"
+                          onclick="window.location.href='/librarian_book/{{ book.id }}'"
+                        >
+                          view Book
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <td>{{ book.author }}</td>
+                <td>{{ request.date_return.strftime('%d-%m-%Y %H:%M') }}</td>
+                <td>
+                  <button
+                    class="btn btn-danger"
+                    onclick="window.location.href='/reject_request/{{request.id}}'"
+                  >
+                    reject
+                  </button>
+                  <button
+                    class="btn btn-success"
+                    onclick="window.location.href='/approve_request/{{request.id}}'"
+                  >
+                    grant
+                  </button>
+                </td>
+              </tr>
+              {% endif %} {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="table-box">
+          <h1 class="text-center">Book Status</h1>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Book ID</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Return Date</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for request in requests %} {% set book = request.book %} {% if
+              request.status=='approved' %}
+              <tr>
+                <th scope="row">{{ book.id }}</th>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ request.date_return.strftime('%d-%m-%Y %H:%M') }}</td>
+                <td>
+                  <button
+                    class="btn btn-danger"
+                    onclick="revoke('/revoke_book/{{request.id}}')"
+                  >
+                    revoke
+                  </button>
+                </td>
+              </tr>
+              {% endif %} {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div
+        style="
+          background-color: blanchedalmond;
+          padding: 10px;
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+        "
+      >
+        <p
+          class="text-center text-muted"
+          style="display: inline-block; margin-right: 800px; margin-left: 10px"
+        >
+          Contact us: libraryapp@gmail.com | +91 123-456-7890
+        </p>
+        <p class="text-center text-muted" style="display: inline-block">
+          © 2024 Library App. All rights reserved.
+        </p>
+      </div>
+    </div>
+    <script>
+      function revoke(url) {
+        if (confirm("Are you sure you want to revoke this book?")) {
+          window.location.href = url;
+        }
+      }
+      function openModal(id) {
+        $("#viewModal" + id).modal("show");
+      }
+      function closeModal(id) {
+        $("#viewModal" + id).modal("hide");
+      }
+    </script>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

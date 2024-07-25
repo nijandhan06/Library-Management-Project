@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Form</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg"
+      style="background-color: blanchedalmond"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/" style="color: black">Library App</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="/home" style="color: black"
+                >Books</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/mybooks" style="color: black"
+                >MyBooks</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/stats" style="color: black"
+                >Stats</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/logout" style="color: black"
+                >Logout</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}{% for category, message in messages %} {% if category ==
+      'error' %}
+      <div align="center">
+        <div
+          class="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+      {% else %}
+      <div align="center">
+        <div
+          class="alert alert-success alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+      {% endif %} {% endfor %} {% endif %} {% endwith %}
+      <div>
+        <div class="policy-box">
+          <h3>{{book.title}}</h3>
+          <p>Author: {{book.author}}</p>
+          <p>Please confirm if you want to return the book:</p>
+          <p>Policy:</p>
+          <ul>
+            <li>
+              If the book is not returned within 7 days, your borrowing
+              privileges will be revoked.
+            </li>
+            <li>
+              You have the option to renew your borrowed books up to two times,
+              provided there are no pending reservations.
+            </li>
+            <li>
+              Late return fees of $X per day will be charged for each overdue
+              book.
+            </li>
+            <li>
+              Lost or damaged books will incur replacement fees equal to the
+              current market value of the book.
+            </li>
+            <li>
+              Users can reserve a book for up to 3 days before it's returned to
+              circulation.
+            </li>
+            <li>
+              Each user can borrow a maximum of 5 books for a period of 14 days.
+            </li>
+          </ul>
+          <div style="display: flex; justify-content: start; gap: 10px">
+            <form action="/request/{{book.id}}" method="post">
+              <label for="date_return">Return date:</label>
+              <input
+                type="date"
+                name="date_return"
+                placeholder="select return date"
+              />
+              <button type="submit" class="btn btn-primary">Confirm</button>
+            </form>
+            <button class="btn btn-secondary" onclick="cancelReturn()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div
+        style="
+          background-color: blanchedalmond;
+          padding: 10px;
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+        "
+      >
+        <p
+          class="text-center text-muted"
+          style="display: inline-block; margin-right: 800px; margin-left: 10px"
+        >
+          Contact us: libraryapp@gmail.com | +91 123-456-7890
+        </p>
+        <p class="text-center text-muted" style="display: inline-block">
+          © 2024 Library App. All rights reserved.
+        </p>
+      </div>
+    </div>
+    <script>
+      function cancelReturn() {
+        window.location.href = "/home";
+      }
+    </script>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
